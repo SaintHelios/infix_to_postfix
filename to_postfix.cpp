@@ -22,11 +22,12 @@ int calculate_postfix(string expression) {
 	for (size_t i = 0; expression[i] != '\0'; ++i) {
 		if (expression[i] == ' ') continue;
 
-		if (expression[i] >= 48 && expression[i] <= 57) {
+		if (expression[i] == '-' && (expression[i + 1] >= 48 && expression[i + 1] <= 57)) {
 			string operand;
-			if (expression[i + 1] >= 48 && expression[i + 1] <= 57) {
-				size_t num_iterator = i;
+			if (expression[i + 2] >= 48 && expression[i + 2] <= 57) {
+				size_t num_iterator = i + 1;
 
+				operand.push_back('-');
 				while (expression[num_iterator] >= 48 && expression[num_iterator] <= 57) {
 					operand.push_back(expression[num_iterator]);
 					++num_iterator;
@@ -35,10 +36,31 @@ int calculate_postfix(string expression) {
 				input_stack.push(operand);
 			}
 			else {
-				operand.push_back(expression[i]);
+				operand.push_back('-');
+				operand.push_back(expression[i + 1]);
 				input_stack.push(operand);
+				++i; /*    maybe i += 2   */
 			}
 			operand.clear();
+		}
+		
+		else if (expression[i] >= 48 && expression[i] <= 57) {
+				string operand;
+				if (expression[i + 1] >= 48 && expression[i + 1] <= 57) {
+					size_t num_iterator = i;
+
+					while (expression[num_iterator] >= 48 && expression[num_iterator] <= 57) {
+						operand.push_back(expression[num_iterator]);
+						++num_iterator;
+					}
+					i = num_iterator;
+					input_stack.push(operand);
+				}
+				else {
+					operand.push_back(expression[i]);
+					input_stack.push(operand);
+				}
+				operand.clear();
 		}
 
 		else if (expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/') {
@@ -48,33 +70,69 @@ int calculate_postfix(string expression) {
 			switch (expression[i]) {
 			case '+':
 				int result;
-
-				if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
-					size_t num_iterator = 0;
-					while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
-						operand.push_back(input_stack.top()[num_iterator]);
-						++num_iterator;
+				if (input_stack.top()[0] == '-') {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 1;
+						operand.push_back('-');
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
 					}
-					input_stack.pop();
+					else {
+						operand.push_back('-');
+						operand.push_back(input_stack.top()[1]); //////////////////////////////////////
+					}
 				}
-				else {
-					operand.push_back(input_stack.top()[0]);
-					input_stack.pop();
+
+				else if (input_stack.top()[0] >= 48 && input_stack.top()[0] <= 57) {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 0;
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
+					}
+					else {
+						operand.push_back(input_stack.top()[0]);
+						input_stack.pop();
+					}
 				}
+
 				right_operand = operand;
 				operand.clear();
 
-				if ((input_stack.top())[1] >= 48 && (input_stack.top())[1] <= 57) {
-					size_t num_iterator = 0;
-					while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
-						operand.push_back(input_stack.top()[num_iterator]);
-						++num_iterator;
+				if (input_stack.top()[0] == '-') {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 1;
+						operand.push_back('-');
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
 					}
-					input_stack.pop();
+					else {
+						operand.push_back('-');
+						operand.push_back(input_stack.top()[1]); 
+					}
 				}
-				else {
-					operand.push_back(input_stack.top()[0]);
-					input_stack.pop();
+
+				else if ((input_stack.top())[0] >= 48 && (input_stack.top())[0] <= 57) {
+					if ((input_stack.top())[1] >= 48 && (input_stack.top())[1] <= 57) {
+						size_t num_iterator = 0;
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
+					}
+					else {
+						operand.push_back(input_stack.top()[0]);
+						input_stack.pop();
+					}
 				}
 				left_operand = operand;
 				operand.clear();
@@ -85,33 +143,69 @@ int calculate_postfix(string expression) {
 				right_operand.clear();
 				break;
 			case '-':
-				result;
-				if ((input_stack.top())[1] >= 48 && (input_stack.top())[1] <= 57) {
-					size_t num_iterator = 0;
-					while ((input_stack.top())[num_iterator] >= 48 && (input_stack.top())[num_iterator] <= 57) {
-						operand.push_back(input_stack.top()[num_iterator]);
-						++num_iterator;
+				if (input_stack.top()[0] == '-') {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 1;
+						operand.push_back('-');
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
 					}
-					input_stack.pop();
+					else {
+						operand.push_back('-');
+						operand.push_back(input_stack.top()[1]); //////////////////////////////////////
+					}
 				}
-				else {
-					operand.push_back(input_stack.top()[0]);
-					input_stack.pop();
+
+				else if (input_stack.top()[0] >= 48 && input_stack.top()[0] <= 57) {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 0;
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
+					}
+					else {
+						operand.push_back(input_stack.top()[0]);
+						input_stack.pop();
+					}
 				}
+
 				right_operand = operand;
 				operand.clear();
 
-				if ((input_stack.top())[1] >= 48 && (input_stack.top())[1] <= 57) {
-					size_t num_iterator = 0;
-					while ((input_stack.top())[num_iterator] >= 48 && (input_stack.top())[num_iterator] <= 57) {
-						operand.push_back(input_stack.top()[num_iterator]);
-						++num_iterator;
+				if (input_stack.top()[0] == '-') {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 1;
+						operand.push_back('-');
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
 					}
-					input_stack.pop();
+					else {
+						operand.push_back('-');
+						operand.push_back(input_stack.top()[1]);
+					}
 				}
-				else {
-					operand.push_back(input_stack.top()[0]);
-					input_stack.pop();
+
+				else if ((input_stack.top())[0] >= 48 && (input_stack.top())[0] <= 57) {
+					if ((input_stack.top())[1] >= 48 && (input_stack.top())[1] <= 57) {
+						size_t num_iterator = 0;
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
+					}
+					else {
+						operand.push_back(input_stack.top()[0]);
+						input_stack.pop();
+					}
 				}
 				left_operand = operand;
 				operand.clear();
@@ -122,33 +216,69 @@ int calculate_postfix(string expression) {
 				right_operand.clear();
 				break;
 			case '*':
-				result;
-				if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
-					size_t num_iterator = 0;
-					while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
-						operand.push_back(input_stack.top()[num_iterator]);
-						++num_iterator;
+				if (input_stack.top()[0] == '-') {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 1;
+						operand.push_back('-');
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
 					}
-					input_stack.pop();
+					else {
+						operand.push_back('-');
+						operand.push_back(input_stack.top()[1]); //////////////////////////////////////
+					}
 				}
-				else {
-					operand.push_back(input_stack.top()[0]);
-					input_stack.pop();
+
+				else if (input_stack.top()[0] >= 48 && input_stack.top()[0] <= 57) {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 0;
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
+					}
+					else {
+						operand.push_back(input_stack.top()[0]);
+						input_stack.pop();
+					}
 				}
+
 				right_operand = operand;
 				operand.clear();
 
-				if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
-					size_t num_iterator = 0;
-					while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
-						operand.push_back(input_stack.top()[num_iterator]);
-						++num_iterator;
+				if (input_stack.top()[0] == '-') {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 1;
+						operand.push_back('-');
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
 					}
-					input_stack.pop();
+					else {
+						operand.push_back('-');
+						operand.push_back(input_stack.top()[1]);
+					}
 				}
-				else {
-					operand.push_back(input_stack.top()[0]);
-					input_stack.pop();
+
+				else if ((input_stack.top())[0] >= 48 && (input_stack.top())[0] <= 57) {
+					if ((input_stack.top())[1] >= 48 && (input_stack.top())[1] <= 57) {
+						size_t num_iterator = 0;
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
+					}
+					else {
+						operand.push_back(input_stack.top()[0]);
+						input_stack.pop();
+					}
 				}
 				left_operand = operand;
 				operand.clear();
@@ -159,33 +289,69 @@ int calculate_postfix(string expression) {
 				right_operand.clear();
 				break;
 			case '/':
-				result;
-				if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
-					size_t num_iterator = 0;
-					while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
-						operand.push_back(input_stack.top()[num_iterator]);
-						++num_iterator;
+				if (input_stack.top()[0] == '-') {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 1;
+						operand.push_back('-');
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
 					}
-					input_stack.pop();
+					else {
+						operand.push_back('-');
+						operand.push_back(input_stack.top()[1]); //////////////////////////////////////
+					}
 				}
-				else {
-					operand.push_back(input_stack.top()[0]);
-					input_stack.pop();
+
+				else if (input_stack.top()[0] >= 48 && input_stack.top()[0] <= 57) {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 0;
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
+					}
+					else {
+						operand.push_back(input_stack.top()[0]);
+						input_stack.pop();
+					}
 				}
+
 				right_operand = operand;
 				operand.clear();
 
-				if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
-					size_t num_iterator = 0;
-					while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
-						operand.push_back(input_stack.top()[num_iterator]);
-						++num_iterator;
+				if (input_stack.top()[0] == '-') {
+					if (input_stack.top()[1] >= 48 && input_stack.top()[1] <= 57) {
+						size_t num_iterator = 1;
+						operand.push_back('-');
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
 					}
-					input_stack.pop();
+					else {
+						operand.push_back('-');
+						operand.push_back(input_stack.top()[1]);
+					}
 				}
-				else {
-					operand.push_back(input_stack.top()[0]);
-					input_stack.pop();
+
+				else if ((input_stack.top())[0] >= 48 && (input_stack.top())[0] <= 57) {
+					if ((input_stack.top())[1] >= 48 && (input_stack.top())[1] <= 57) {
+						size_t num_iterator = 0;
+						while (input_stack.top()[num_iterator] >= 48 && input_stack.top()[num_iterator] <= 57) {
+							operand.push_back(input_stack.top()[num_iterator]);
+							++num_iterator;
+						}
+						input_stack.pop();
+					}
+					else {
+						operand.push_back(input_stack.top()[0]);
+						input_stack.pop();
+					}
 				}
 				left_operand = operand;
 				operand.clear();
@@ -266,7 +432,7 @@ element to_postfix(string input_string) {
 				}
 				result_string.push_back(' ');
 			}
-			else { 
+			else {
 				result_string.push_back(input_string[i]);
 				result_string.push_back(' ');
 			}
@@ -299,7 +465,7 @@ element to_postfix(string input_string) {
 			if (operators_stack.empty()) operators_stack.push(input_string[i]);
 
 			else {
-				while (( !operators_stack.empty() ) && ( define_priority(input_string[i]) <= define_priority(operators_stack.top() ) )) {
+				while ((!operators_stack.empty()) && (define_priority(input_string[i]) <= define_priority(operators_stack.top()))) {
 					result_string.push_back(operators_stack.top());
 					result_string.push_back(' ');
 					operators_stack.pop();
